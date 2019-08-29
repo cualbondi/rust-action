@@ -1,6 +1,6 @@
 # Rust Github Action
 
-'Silverbullet' for a quickstart Rust CI based upon [Github Actions](https://developer.github.com/actions/)
+Rust CI based upon [Github Actions](https://developer.github.com/actions/)
 
 *What's inside the "box":*
 
@@ -9,17 +9,36 @@
 * Clippy
 * Cargo Release
 * cmake - Thanks @ [bwasty](https://github.com/bwasty)
+* tarpaulin
 
 # Usage
 
+set env variable
 ```
-workflow "Quickstart" {
-  on = "push"
-  resolves = ["Quickstart"]
-}
+CODECOV_TOKEN="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
 
-action "Quickstart" {
-  uses = "icepuma/rust-action@master"
-  args = "cargo fmt -- --check && cargo clippy -- -Dwarnings && cargo test"
-}
+create a `.github/workflows/workflow.yml` file with the next contents
+
+```
+name: Test
+
+on: [push]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: cualbondi/rust-action@master
+    - name: Format
+      run: cargo fmt -- --check
+    - name: Clippy
+      run: cargo clippy -- -D warnings -A clippy::ptr-arg
+    - name: Tests
+      run: cargo test --verbose
+    - name: codecov
+      run: taskset -c 0 cargo tarpaulin --out Xml && bash <(curl -s https://codecov.io/bash)
 ```
